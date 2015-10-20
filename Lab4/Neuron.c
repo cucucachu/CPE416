@@ -6,6 +6,7 @@
 
 /*
 typedef struct Neuron {
+	uint8_t id;
 	float *weights;
 	float offset;
 	
@@ -22,10 +23,11 @@ typedef struct Neuron {
 } Neuron;
 */
 
-Neuron *create_neuron() {
+Neuron *create_neuron(uint8_t id) {
 	Neuron *this;
 	this = calloc(1, sizeof(Neuron));
 	
+	this->id = id;
 	this->weights = NULL;
 	this->offset = 0;
 	
@@ -112,17 +114,28 @@ void set_neuron_output(Neuron *this, Neuron *output_neuron) {
 		fprintf(stderr, "You have exceeded the maximum number of outputs on this neuron.\n");
 }
 
-void set_neuron_weights(Neuron *this, float *weights, uint8_t number) {
-	int i;
-	
-	this->weights = calloc(number, sizeof(float));
-	
-	for (i = 0; i < number; i++) 
-		this->weights[i] = weights[i];
-}
-
 void set_neuron_offset(Neuron *this, float offset) {
 	this->offset = offset;
+}
+
+uint8_t equals(Neuron *this, Neuron *other) {
+	return this->id == other->id;
+}
+
+float get_weight_for_input_neuron(Neuron *this, Neuron *other) {
+	uint8_t input_neuron_index;
+	int i;
+	
+	input_neuron_index = -1;
+	
+	for (i = 0; i < this->number_of_inputs; i++)
+		if (equals(this->input_neurons[i], other))
+			input_neuron_index = i;
+	
+	if (input_neuron_index == -1)
+		printf("Error in get_weight_for_input_neuron this %d other %d\n", this->id, other->id);
+		
+	return this->weights[i];
 }
 
 float get_inputs(Neuron *this) {
@@ -151,6 +164,9 @@ float get_neuron_output(Neuron *this) {
 	return 1.0 / (1 + exp(-1 * (weighted_sum - this->offset)));
 }
 
-void change_input_weight(Neuron *this, uint8_t input_index, float new_weight) {
-	this->weights[input_index] = new_weight;
+void teach_neuron(Neuron *this, float alpha, float gradient) {
+	int i;
+	
+	for (i = 0; i < this->number_of_inputs; i++)
+		this->weights[i] += alpha * get_neuron_output(this->input_neurons[i]) * gradient;
 }

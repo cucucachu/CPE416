@@ -7,6 +7,7 @@
 #define MAX_OUTPUTS 10
 
 typedef struct Neuron {
+	uint8_t id;
 	float *weights;
 	float offset;
 	
@@ -23,19 +24,17 @@ typedef struct Neuron {
 	float input;
 } Neuron;
 
-Neuron* create_neuron();
+Neuron* create_neuron(uint8_t id);
 void destroy_neuron(Neuron *this);
 
 void set_as_input_neuron(Neuron *this);
 void set_static_input(Neuron *this, float input);
 
-void set_neuron_weights(Neuron *this, float *weights, uint8_t number);
 void set_neuron_offset(Neuron *this, float offset);
 
-/*
-void set_neuron_inputs(Neuron *this, Neuron **input_neurons, uint8_t number);
-void set_neuron_outputs(Neuron *this, Neuron **output_nuerons, uint8_t number);
-*/
+uint8_t equals(Neuron *this, Neuron *other);
+
+float get_weight_for_input_neuron(Neuron *this, Neuron *other);
 
 void set_neuron_input(Neuron *this, Neuron *input, float weight);
 void set_neuron_output(Neuron *this, Neuron *output);
@@ -43,6 +42,5 @@ void set_neuron_output(Neuron *this, Neuron *output);
 float get_neuron_inputs(Neuron *this);
 float get_neuron_output(Neuron *this);
 
-
-void change_input_weight(Neuron *this, uint8_t input_index, float new_weight);
+void teach_neuron(Neuron *this, float alpha, float gradient);
 #endif
