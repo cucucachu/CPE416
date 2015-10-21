@@ -2,6 +2,7 @@ SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 BOARD_LIB = $(SELF_DIR)/library
 SOURCE_LIB = $(wildcard $(BOARD_LIB)/*.c)
 CLOCK_RATE = 16000000L
+CC=~jseng/avr_bin/bin/avr-gcc
 
 lab: lab4 program_mac
 
