@@ -3,6 +3,7 @@
 
 #include "Neuron.h"
 #include "NeuralNetwork.h"
+#include "MotorCommand.h"
 
 #define NUM_NEURONS 7
 #define NUM_INPUT_NEURONS 2
@@ -14,14 +15,18 @@
 void create_lab4_neural_network();
 void neural_network_test();
 float random_float();
+void wait();
 
 NeuralNetwork *neural_network;
 
 void main() {
+	int i;
 	create_lab4_neural_network();
 	printf("Network created\n");
 	
-	neural_network_test();
+	//neural_network_test();
+	
+	for (i = 0; i < LEARNING_ITERATIONS; i++);
 	
 	destroy_neural_network(neural_network);
 	printf("Network destroyed\n");
@@ -150,4 +155,16 @@ void neural_network_test() {
 
 float random_float() {
 	return (float)rand() / (float)RAND_MAX;
+}
+
+void wait() {
+	lcd_cursor(1, 0);
+	print_string("Listo");
+	
+	while (!get_btn());
+	
+	clear_screen();
+	lcd_cursor(3, 0);
+	print_string("Go");
+	_delay_ms(200);
 }
