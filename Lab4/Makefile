@@ -8,10 +8,10 @@ lab: lab4 program_mac
 neunet:
 	gcc -I$(BOARD_LIB) Lab4.c NeuralNetwork.c Neuron.c Motors.c IRSensors.c LineFollowing.c -lm
 
-lab4: lab4.c 	$(wildcard $(BOARD_LIB)/*.c)
-		avr-gcc -I$(BOARD_LIB) -DF_CPU=$(CLOCK_RATE) -Wall -mmcu=atmega645a -O2 -o main.elf lab4.c $(wildcard $(BOARD_LIB)/*.c)
-		avr-objcopy -O ihex main.elf main.hex
-		avr-size main.elf
+lab4: lab4.c 	$(wildcard $(BOARD_LIB)/*.c) 
+	$(CC) -I$(BOARD_LIB) -DF_CPU=$(CLOCK_RATE) -Wall -mmcu=atmega645a -O2 -o main.elf lab2_part1.c $(wildcard $(BOARD_LIB)/*.c) *.c 
+	/home/jseng/avr_bin/bin/avr-objcopy -O ihex main.elf main.hex
+	/home/jseng/avr_bin/bin/avr-size main.elf
 
 test: test.c $(wildcard $(BOARD_LIB)/*.c)
 	avr-gcc -I$(BOARD_LIB) -DF_CPU=$(CLOCK_RATE) -Wall -mmcu=atmega645a -O2 -o main.elf test.c $(wildcard $(BOARD_LIB)/*.c)
