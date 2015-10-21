@@ -6,6 +6,8 @@
 #include "Motors.h"
 #include "IRSensors.h"
 #include "Memory.h"
+#include "LineFollowing.h"
+#include "globals.h"
 
 #define NUM_NEURONS 7
 #define NUM_INPUT_NEURONS 2
@@ -18,9 +20,13 @@
 void setup();
 
 void move();
-void capture();
 void study();
 void learn_by_doing();
+
+void proportional();
+void capture();
+void training();
+void neural();
 
 MotorCommand compute_neural_network(uint8_t left, uint8_t right);
 void destroy();
@@ -34,16 +40,22 @@ NeuralNetwork *neural_network;
 Memory memory;
 int memory_index;
 int learning_index;
-void *state;
+void (*state)(void);
 
-void main() {
+int main() {
+	//MotorCommand motor_command;
 	setup();
 	wait();
 	
 	while (1) {
+		if (get_btn() == 1)
+			if (state == &proportional || state == &training)
+				state = &capture;
+			else if (state == &capture)
+				state = &training;
+		
 		state();
 	}
-	
 	
 	destroy();
 }
@@ -54,7 +66,7 @@ void setup() {
 	lf_init();
 	create_lab4_neural_network();
 	
-	state = &capture;
+	state = &proportional;
 	
 	memory = calloc(MEMORY_SIZE, sizeof(IO_Pair));
 	memory_index = 0;
@@ -62,19 +74,21 @@ void setup() {
 }
 
 
-void move(){
+void move() {
 	Memory current;
 	
-	if (memory_index % MEMORY_SIZE != 0)
+	if (memory_index % MEMORY_SIZE != 0) {
 		current = memory + ((memory_index - 1) % MEMORY_SIZE);
-	
-	motors(memory->motor_command);
-};
+		motors(current->motor_command);
+	}
+}
 
-void capture() {
+void proportional() {
 	Input input;
 	MotorCommand motor_command;
-	Memory new_memory;
+	
+	clear_screen();
+	print_string("Proportional");
 	
 	input.left = read_ir_sensor(LEFT);
 	input.right = read_ir_sensor(RIGHT);
@@ -82,12 +96,72 @@ void capture() {
 	motor_command = compute_proportional(input.left, input.right);
 	
 	motors(motor_command);
+	_delay_ms(DELAY);
+}
+
+void capture() {
+	Input input;
+	Memory new_memory;
 	
-	new_memory = memory + (memory_index % MEMORY_SIZE);
-	new_memory->input = input;
-	new_memory->motor_command = motor_command;
+	if (memory_index < MEMORY_SIZE) {
 	
-	memory_index++;
+		input.left = read_ir_sensor(LEFT);
+		input.right = read_ir_sensor(RIGHT);
+	
+		clear_screen();
+		print_string("Data");
+		lcd_cursor(5, 0);
+		print_num(memory_index);
+		lcd_cursor(0, 1);
+		print_num(input.left);
+		lcd_cursor(4, 1);
+		print_num(input.right);
+	
+		new_memory = memory + (memory_index % MEMORY_SIZE);
+		new_memory->input = input;	
+	
+		memory_index++;
+	}
+}
+
+void training() {
+	float input[NUM_INPUT_NEURONS];
+	float desired_values[NUM_OUTPUT_NEURONS];
+	MotorCommand motor_command;
+	Memory current;
+	int i;
+	
+	clear_screen();
+	print_string("Training");
+	
+	for (i = 0; i < MEMORY_SIZE; i++)  {
+		current = memory + i;
+		
+		input[0] = (float)current->input.left / 100.0;
+		input[1] = (float)current->input.right / 100.0;
+		set_inputs(neural_network, input);
+	
+		motor_command = compute_proportional(current->input.left, current->input.right);
+	
+		desired_values[0] = (float)(motor_command.left) / 100.0;
+		desired_values[1] = (float)(motor_command.right) / 100.0;
+
+		teach_network(neural_network, desired_values);
+	}
+}
+
+void neural() {
+	float input[NUM_INPUT_NEURONS];
+	MotorCommand motor_command;
+	
+	clear_screen();
+	print_string("Neural");
+	
+	input[0] = (float)read_ir_sensor(LEFT) / 100.0;
+	input[0] = (float)read_ir_sensor(RIGHT) / 100.0;
+	
+	motor_command = 
+	motors(motor_command);
 }
 
 void study() {
@@ -98,12 +172,12 @@ void study() {
 	current = memory + (learning_index % MEMORY_SIZE);
 	
 		
-	input[0] = (float)memory->input.left / 100.0;
-	input[1] = (float)memory->input.right / 100.0;
+	input[0] = (float)current->input.left / 100.0;
+	input[1] = (float)current->input.right / 100.0;
 	set_inputs(neural_network, input);
 	
-	desired_values[0] = (float)memory->motor_command / 100.0;
-	desired_values[1] = (float)memory->motor_command / 100.0;
+	desired_values[0] = (float)(current->motor_command.left) / 100.0;
+	desired_values[1] = (float)(current->motor_command.right) / 100.0;
 
 	teach_network(neural_network, desired_values);
 	
@@ -121,8 +195,8 @@ MotorCommand compute_neural_network(uint8_t left, uint8_t right) {
 	float outputs[NUM_OUTPUT_NEURONS];
 	MotorCommand motor_command;
 	
-	input[0] = (float)memory->input.left / 100.0;
-	input[1] = (float)memory->input.right / 100.0;
+	input[0] = (float)read_ir_sensor(LEFT) / 100.0;
+	input[1] = (float)read_ir_sensor(RIGHT) / 100.0;
 	set_inputs(neural_network, input);
 	
 	get_outputs(neural_network, outputs);
@@ -134,7 +208,7 @@ MotorCommand compute_neural_network(uint8_t left, uint8_t right) {
 }
 
 void destroy() {
-	destroy_network(neural_network);
+	destroy_neural_network(neural_network);
 	free(memory);
 }
 
@@ -142,7 +216,6 @@ void destroy() {
  * weights random though
  */
 void create_lab4_neural_network() {
-	float temp;
 	neural_network = create_neural_network(NUM_NEURONS, NUM_INPUT_NEURONS, NUM_OUTPUT_NEURONS);
 	
 	srand(SEED);

@@ -23,8 +23,6 @@
 #define DELTA_COEFFICIENT .5
 #define SUM_COEFFICIENT .04
 
-
-
 #define DELAY 3 // 3 for best cornering, 5 for best smoothness
 
 void lf_init();
