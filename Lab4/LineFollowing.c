@@ -25,7 +25,7 @@ MotorCommand compute_proportional(uint8_t left, uint8_t right) {
 	motor_command.left = FULL_SPEED;
 	motor_command.right = FULL_SPEED;
 
-	present = WEIGHT * (read_ir_sensor(RIGHT) - read_ir_sensor(LEFT));
+	present = WEIGHT * (right - left);
 	delta = present - previous;
 	sum += present;
 	

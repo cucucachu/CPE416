@@ -4,13 +4,25 @@
 #include "Neuron.h"
 #include "NeuralNetwork.h"
 #include "MotorCommand.h"
+#include "Motors.h"
+#include "IRSensors.h"
+#include "Memory.h"
 
 #define NUM_NEURONS 7
 #define NUM_INPUT_NEURONS 2
 #define NUM_OUTPUT_NEURONS 2
+
 #define LEARNING_RATE .02
 #define LEARNING_ITERATIONS 100000
 #define SEED 111
+
+void setup();
+
+void capture();
+void study();
+void learn_by_doing();
+
+void destroy();
 
 void create_lab4_neural_network();
 void neural_network_test();
@@ -18,18 +30,85 @@ float random_float();
 void wait();
 
 NeuralNetwork *neural_network;
+Memory memory;
+int memory_index;
+int learning_index;
+void *state;
 
 void main() {
-	int i;
+	setup();
+	
+	while (1) {
+		
+		state();
+	}
+	
+	
+	destroy();
+}
+
+void setup() {
+	init();
+	init_lcd();
+	lf_init();
 	create_lab4_neural_network();
-	printf("Network created\n");
 	
-	//neural_network_test();
+	state = &capture;
 	
-	for (i = 0; i < LEARNING_ITERATIONS; i++);
+	memory = calloc(MEMORY_SIZE, sizeof(IO_Pair));
+	memory_index = 0;
+	learning_index = 0;
+}
+
+
+void capture() {
+	Input input;
+	MotorCommand motor_command;
+	Memory new_memory;
 	
-	destroy_neural_network(neural_network);
-	printf("Network destroyed\n");
+	input.left = read_ir_sensor(LEFT);
+	input.right = read_ir_sensor(RIGHT);
+	
+	motor_command = compute_proportional(input.left, input.right);
+	
+	motors(motor_command);
+	
+	new_memory = memory + (memory_index % MEMORY_SIZE);
+	new_memory->input = input;
+	new_memory->motor_command = motor_command;
+	
+	memory_index++;
+}
+
+void study() {
+	float input[NUM_INPUT_NEURONS];
+	float desired_values[NUM_OUTPUT_NEURONS];
+	Memory current;
+	
+	current = memory + (learning_index % MEMORY_SIZE);
+	
+		
+	input[0] = (float)memory->input.left / 100.0;
+	input[1] = (float)memory->input.right / 100.0;
+	set_inputs(neural_network, input);
+	
+	desired_values[0] = (float)memory->motor_command / 100.0;
+	desired_values[1] = (float)memory->motor_command / 100.0;
+
+	teach_network(neural_network, desired_values);
+	
+	learning_index++;
+}
+
+void learn_by_doing() {
+	learning_index = memory_index;
+	capture();
+	study();
+}
+
+void destroy() {
+	destroy_network(neural_network);
+	free(memory);
 }
 
 /* This is all the setup for the NeuralNetwork for lab4. Still need to make the
@@ -73,6 +152,22 @@ void create_lab4_neural_network() {
 	set_learning_rate(neural_network, LEARNING_RATE);
 }
 
+float random_float() {
+	return (float)rand() / (float)RAND_MAX;
+}
+
+void wait() {
+	lcd_cursor(1, 0);
+	print_string("Listo");
+	
+	while (!get_btn());
+	
+	clear_screen();
+	lcd_cursor(3, 0);
+	print_string("Go");
+	_delay_ms(200);
+}
+
 /* Here is a test of the network. 
  * Nodes 2 through 6 should output 1/2. The first two should output 1
  */
@@ -80,6 +175,9 @@ void neural_network_test() {
 	int i;
 	float input[NUM_INPUT_NEURONS];
 	float desired_values[NUM_OUTPUT_NEURONS];
+	
+	create_lab4_neural_network();
+	printf("Network created\n");
 	
 	for (i = 0; i < LEARNING_ITERATIONS; i++) {
 		
@@ -150,21 +248,7 @@ void neural_network_test() {
 	
 	for (i = 5; i < NUM_NEURONS; i++)
 		printf("Output from node %d network (1, 1): %f\n", i, get_output(neural_network, i));
-		
-}
-
-float random_float() {
-	return (float)rand() / (float)RAND_MAX;
-}
-
-void wait() {
-	lcd_cursor(1, 0);
-	print_string("Listo");
 	
-	while (!get_btn());
-	
-	clear_screen();
-	lcd_cursor(3, 0);
-	print_string("Go");
-	_delay_ms(200);
+	destroy_neural_network(neural_network);
+	printf("Network destroyed\n");
 }

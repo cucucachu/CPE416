@@ -1,7 +1,6 @@
 #include "IRSensors.h"
 
 void ir_init() {
-	init_lcd();
 	init_adc();
 }
 
