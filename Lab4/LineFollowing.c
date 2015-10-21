@@ -11,7 +11,7 @@ float previous;
 
 void lf_init() {
 	motor_init();
-	ir_init()
+	ir_init();
 	
 	sum = 0;
 	previous = 0;

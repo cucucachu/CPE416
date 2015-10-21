@@ -130,7 +130,6 @@ void calculate_gradients(NeuralNetwork *this, float *gradients) {
 	Neuron *neuron;
 	Neuron *output_neuron;
 	float neuron_output;
-	float output_neuron_output;
 	float weight;
 	float sum;
 	
@@ -158,7 +157,6 @@ void calculate_gradients(NeuralNetwork *this, float *gradients) {
 		for (ii = 0; ii < neuron->number_of_outputs; ii++) {
 			output_neuron_index = this->num_neurons - (ii + 1);
 			output_neuron = this->neurons[output_neuron_index];
-			output_neuron_output = get_output(this, output_neuron_index);
 			
 			weight = get_weight_for_input_neuron(neuron, output_neuron);
 			sum += weight * gradients[this->num_neurons - (output_neuron_index + 1)];

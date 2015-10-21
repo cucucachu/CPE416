@@ -12,8 +12,6 @@
 #include <util/delay.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
-
-#define MAXSPEEDRANGE   27.0
 #define FULL_SPEED 50
 
 #define WEIGHT 1
@@ -30,6 +28,6 @@
 #define DELAY 3 // 3 for best cornering, 5 for best smoothness
 
 void lf_init();
-MotorCommand compute_proportional(uint8_t left, uint8_t right) {
+MotorCommand compute_proportional(uint8_t left, uint8_t right);
 
 #endif

@@ -3,7 +3,6 @@
 
 #include "Neuron.h"
 #include "NeuralNetwork.h"
-#include "MotorCommand.h"
 #include "Motors.h"
 #include "IRSensors.h"
 #include "Memory.h"
