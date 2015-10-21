@@ -18,14 +18,14 @@ u08 read_ir_sensor(u08 which_eye) {
 void eye_exam() { 
 	while (!get_btn()) {
 		u08 light;
-		light = eye(LEFT);
+		light = read_ir_sensor(LEFT);
 		clear_screen();
 		print_num(light);
 		
-		light = eye(RIGHT);
+		light = read_ir_sensor(RIGHT);
 		lcd_cursor(6, 0);
 		print_num(light);
-		delay(100);
+		_delay_ms(100);
 	}
 }
 
