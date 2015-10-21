@@ -18,10 +18,12 @@
 
 void setup();
 
+void move();
 void capture();
 void study();
 void learn_by_doing();
 
+MotorCommand compute_neural_network(uint8_t left, uint8_t right);
 void destroy();
 
 void create_lab4_neural_network();
@@ -37,9 +39,9 @@ void *state;
 
 void main() {
 	setup();
+	wait();
 	
 	while (1) {
-		
 		state();
 	}
 	
@@ -60,6 +62,15 @@ void setup() {
 	learning_index = 0;
 }
 
+
+void move(){
+	Memory current;
+	
+	if (memory_index % MEMORY_SIZE != 0)
+		current = memory + ((memory_index - 1) % MEMORY_SIZE);
+	
+	motors(memory->motor_command);
+};
 
 void capture() {
 	Input input;
@@ -104,6 +115,23 @@ void learn_by_doing() {
 	learning_index = memory_index;
 	capture();
 	study();
+}
+
+MotorCommand compute_neural_network(uint8_t left, uint8_t right) {
+	float input[NUM_INPUT_NEURONS];
+	float outputs[NUM_OUTPUT_NEURONS];
+	MotorCommand motor_command;
+	
+	input[0] = (float)memory->input.left / 100.0;
+	input[1] = (float)memory->input.right / 100.0;
+	set_inputs(neural_network, input);
+	
+	get_outputs(neural_network, outputs);
+	
+	motor_command.left = (uint8_t)(100 * outputs[0]);
+	motor_command.right = (uint8_t)(100 * outputs[1]);
+	
+	return motor_command;
 }
 
 void destroy() {
