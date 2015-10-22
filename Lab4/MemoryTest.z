@@ -1,0 +1,38 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+
+typedef struct MotorCommand {
+	uint8_t left;
+	uint8_t right;
+} MotorCommand;
+
+#include "Memory.h"
+
+int main() {
+	Input input;
+	int i;
+	Memory memory, new_memory;
+	
+	memory = calloc(MEMORY_SIZE, sizeof(IO_Pair));
+
+	for (i = 0; i < 10; i++) {
+		input.left = i;
+		input.right = 9 -i;
+	
+		new_memory = memory + i;
+		new_memory->input = input;
+	}
+
+
+	for (i = 0; i < 10; i++) {
+		new_memory = memory + i;
+		input = new_memory->input;
+		printf("Memory %d: %d %d\n", i, input.left, input.right);
+	}
+
+
+
+	return 0;
+}
+

@@ -140,6 +140,10 @@ void capture() {
 	motor(LEFT, 0);
 	motor(RIGHT, 0);
 	
+	clear_screen();
+	lcd_cursor(0, 0);
+	print_num(memory_index);
+	
 	if (memory_index < MEMORY_SIZE) {
 	
 		input.left = read_ir_sensor(LEFT);
@@ -147,18 +151,20 @@ void capture() {
 		
 		if (capture_count == 0) {
 			clear_screen();
-			lcd_cursor(0, 0);
+			lcd_cursor(0, 0);/*
+			//print_num(memory);
 			print_string("Data");
 			lcd_cursor(4, 0);
 			print_num(memory_index);
 			lcd_cursor(0, 1);
 			print_num(input.left);
 			lcd_cursor(4, 1);
-			print_num(input.right);
+			print_num(input.right);*/
 		}
 	
-		new_memory = &(memory[memory_index]);//memory + (memory_index % MEMORY_SIZE);
-		new_memory->input = input;	
+		new_memory = memory + memory_index;
+		new_memory->input.left = input.left;
+		new_memory->input.right = input.right;	
 	
 		memory_index++;
 		//capture_count = capture_count < 100 ? capture_count++ : 0;

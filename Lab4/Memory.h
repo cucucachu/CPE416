@@ -1,6 +1,8 @@
 #ifndef MEMORY
 #define MEMORY
 
+#include <stdint.h>
+
 #define MEMORY_SIZE 1000
 
 typedef struct Input {
@@ -11,7 +13,7 @@ typedef struct Input {
 typedef struct IO_Pair {
 	Input input;
 	MotorCommand motor_command;
-} IO_Pair;
+} IO_Pair, *Memory;
 
-typedef IO_Pair *Memory;
+//typedef IO_Pair *Memory;
 #endif
