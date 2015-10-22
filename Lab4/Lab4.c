@@ -168,6 +168,11 @@ void capture() {
 		memory_index++;
 		capture_count = capture_count < 10 ? capture_count++ : 0;
 	}
+	else {
+		clear_screen();
+		lcd_cursor(0, 0);
+		print_string("Mem Full");
+	}
 	
 	_delay_ms(30);
 }
@@ -177,7 +182,7 @@ void training() {
 	float desired_values[NUM_OUTPUT_NEURONS];
 	MotorCommand motor_command;
 	Memory current;
-	int i;
+	int i, ii;
 	
 	clear_screen();
 	
@@ -187,24 +192,29 @@ void training() {
 		number_of_iterations = get_training_iterations();
 	
 	
-	print_string("Training");
 	
 	for (i = 0; i < number_of_iterations; i++)  {
-		current = memory + i;
-		
-		input[0] = (float)current->input.left / 100.0;
-		input[1] = (float)current->input.right / 100.0;
-		set_inputs(neural_network, input);
-	
-		motor_command = compute_proportional(current->input.left, current->input.right);
-	
-		desired_values[0] = (float)(motor_command.left) / 100.0;
-		desired_values[1] = (float)(motor_command.right) / 100.0;
-
-		teach_network(neural_network, desired_values);
 		clear_screen();
+		lcd_cursor(0, 0);
+		print_string("Training");
 		lcd_cursor(2, 1);
 		print_num(i);
+		
+		for (ii = 0; ii < memory_index; ii++) {
+			lcd_cursor(2, 1);
+			print_num(ii);
+		
+			input[0] = (float)(memory[ii].input.left) / 100.0;
+			input[1] = (float)(memory[ii].input.right) / 100.0;
+			set_inputs(neural_network, input);
+	
+			motor_command = compute_proportional(current->input.left, current->input.right);
+	
+			desired_values[0] = (float)(motor_command.left) / 100.0;
+			desired_values[1] = (float)(motor_command.right) / 100.0;
+
+			teach_network(neural_network, desired_values);
+		}
 	}
 	
 	
