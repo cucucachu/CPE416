@@ -14,7 +14,7 @@
 #define NUM_OUTPUT_NEURONS 2
 
 #define LEARNING_RATE .02
-#define LEARNING_ITERATIONS 400
+#define LEARNING_ITERATIONS 200
 #define SEED 111
 
 void setup();
@@ -67,7 +67,7 @@ void setup() {
 	init();
 	init_lcd();
 	lf_init();
-	//create_lab4_neural_network();
+	create_lab4_neural_network();
 	
 	state = &proportional;
 	
@@ -136,7 +136,6 @@ void proportional() {
 
 void capture() {
 	Input input;
-	Memory new_memory;
 	motor(LEFT, 0);
 	motor(RIGHT, 0);
 	
@@ -166,7 +165,7 @@ void capture() {
 	
 		memory[memory_index].input = input;
 		memory_index++;
-		capture_count = capture_count < 10 ? capture_count++ : 0;
+		capture_count = capture_count < 10 ? capture_count + 1 : 0;
 	}
 	else {
 		clear_screen();
@@ -191,8 +190,6 @@ void training() {
 	if (number_of_iterations == 0)
 		number_of_iterations = get_training_iterations();
 	
-	
-	
 	for (i = 0; i < number_of_iterations; i++)  {
 		clear_screen();
 		lcd_cursor(0, 0);
@@ -201,8 +198,8 @@ void training() {
 		print_num(i);
 		
 		for (ii = 0; ii < memory_index; ii++) {
-			lcd_cursor(2, 1);
-			print_num(ii);
+			//lcd_cursor(2, 1);
+			//print_num(ii);
 		
 			input[0] = (float)(memory[ii].input.left) / 100.0;
 			input[1] = (float)(memory[ii].input.right) / 100.0;
