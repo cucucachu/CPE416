@@ -13,16 +13,14 @@
 #define NUM_INPUT_NEURONS 2
 #define NUM_OUTPUT_NEURONS 2
 
-#define LEARNING_RATE .02
+#define LEARNING_RATE .05
 #define LEARNING_ITERATIONS 200
-#define SEED 111
+#define SEED 420
 
 void setup();
 
 void switch_state();
 
-void move();
-void study();
 void learn_by_doing();
 
 void proportional();
@@ -49,9 +47,10 @@ int capture_count;
 int number_of_iterations;
 
 int main() {
-	//MotorCommand motor_command;
 	setup();
 	wait();
+	
+	learn_by_doing();
 	
 	while (1) {
 		if (get_btn() == 1)
@@ -180,9 +179,11 @@ void training() {
 	float input[NUM_INPUT_NEURONS];
 	float desired_values[NUM_OUTPUT_NEURONS];
 	MotorCommand motor_command;
-	Memory current;
+	Input current_input;
 	int i, ii;
 	
+	motor(LEFT, 0);
+	motor(RIGHT, 0);
 	clear_screen();
 	
 	_delay_ms(200);
@@ -200,15 +201,15 @@ void training() {
 		for (ii = 0; ii < memory_index; ii++) {
 			//lcd_cursor(2, 1);
 			//print_num(ii);
-		
+			current_input = memory[ii].input;
 			input[0] = (float)(memory[ii].input.left) / 100.0;
 			input[1] = (float)(memory[ii].input.right) / 100.0;
 			set_inputs(neural_network, input);
 	
-			motor_command = compute_proportional(current->input.left, current->input.right);
+			motor_command = compute_proportional(current_input.left, current_input.right);
 	
-			desired_values[0] = (float)(motor_command.left) / 100.0;
-			desired_values[1] = (float)(motor_command.right) / 100.0;
+			desired_values[0] = ((float)motor_command.left) / 100.0;
+			desired_values[1] = ((float)motor_command.right) / 100.0;
 
 			teach_network(neural_network, desired_values);
 		}
@@ -234,41 +235,80 @@ void neural() {
 	
 	motor_command = compute_neural_network(input.left, input.right);
 	motors(motor_command);
-}
-
-void study() {
-	float input[NUM_INPUT_NEURONS];
-	float desired_values[NUM_OUTPUT_NEURONS];
-	Memory current;
 	
-	current = memory + (learning_index % MEMORY_SIZE);
+	lcd_cursor(0, 1);
+	print_num(motor_command.left);
+	lcd_cursor(5, 1);
+	print_num(motor_command.right);
 	
-		
-	input[0] = (float)current->input.left / 100.0;
-	input[1] = (float)current->input.right / 100.0;
-	set_inputs(neural_network, input);
-	
-	desired_values[0] = (float)(current->motor_command.left) / 100.0;
-	desired_values[1] = (float)(current->motor_command.right) / 100.0;
-
-	teach_network(neural_network, desired_values);
-	
-	learning_index++;
+	_delay_ms(DELAY);
 }
 
 void learn_by_doing() {
-	learning_index = memory_index;
-	capture();
-	study();
+   float input[NUM_INPUT_NEURONS];
+   float desired_values[NUM_OUTPUT_NEURONS];
+   MotorCommand motor_command;
+   Input nInput;
+   int i = 0, ii;
+
+
+   while(1) {
+	   while(!get_btn())  {
+   		clear_screen();
+   		print_string("Training");
+			
+	      nInput.left = read_ir_sensor(LEFT);
+			nInput.right = read_ir_sensor(RIGHT);
+
+	      input[0] = (float)nInput.left / 100.0;
+	      input[1] = (float)nInput.right / 100.0;
+	      set_inputs(neural_network, input);
+	   
+	      motor_command = compute_proportional(nInput.left, nInput.right);
+	   	
+	   	motors(motor_command);
+	      desired_values[0] = ((float)motor_command.left) / 100.0;
+	      desired_values[1] = ((float)motor_command.right) / 100.0;
+
+	      lcd_cursor(2, 1);
+	      print_num(i++);
+	
+			for (ii = 0; ii < 20; ii++)
+	      	teach_network(neural_network, desired_values);
+	
+			_delay_ms(1);
+	   }
+		
+		_delay_ms(400);
+		
+	   while(!get_btn()) {
+		   clear_screen();
+		   print_string("Network");
+		
+   		nInput.left = (float)read_ir_sensor(LEFT) / 100.0;
+			nInput.right = (float)read_ir_sensor(RIGHT) / 100.0;
+			
+			motor_command = compute_neural_network(nInput.left, nInput.right);
+			motors(motor_command);
+	
+			lcd_cursor(0, 1);
+			print_num(motor_command.left);
+			lcd_cursor(5, 1);
+			print_num(motor_command.right);
+			_delay_ms(DELAY);
+	   }
+		_delay_ms(400);
+	}
 }
+
 
 MotorCommand compute_neural_network(uint8_t left, uint8_t right) {
 	float input[NUM_INPUT_NEURONS];
 	float outputs[NUM_OUTPUT_NEURONS];
 	MotorCommand motor_command;
 	
-	input[0] = (float)read_ir_sensor(LEFT) / 100.0;
-	input[1] = (float)read_ir_sensor(RIGHT) / 100.0;
+	input[0] = left;
+	input[1] = right;
 	set_inputs(neural_network, input);
 	
 	get_outputs(neural_network, outputs);
@@ -293,26 +333,26 @@ void create_lab4_neural_network() {
 	srand(SEED);
 	
 	// Connect neuron 0 to other neurons
-	connect_neurons(neural_network, 0, 2, random_float() * 8 / 2);
-	connect_neurons(neural_network, 0, 3, random_float() * 8 / 2);
-	connect_neurons(neural_network, 0, 4, random_float() * 8 / 2);
+	connect_neurons(neural_network, 0, 2, random_float() * 8. / 2.);
+	connect_neurons(neural_network, 0, 3, random_float() * 8. / 2.);
+	connect_neurons(neural_network, 0, 4, random_float() * 8. / 2.);
 	
 	// Connect neuron 1 to other neurons
-	connect_neurons(neural_network, 1, 2, random_float() * 8 / 2);
-	connect_neurons(neural_network, 1, 3, random_float() * 8 / 2);
-	connect_neurons(neural_network, 1, 4, random_float() * 8 / 2);
+	connect_neurons(neural_network, 1, 2, random_float() * 8. / 2.);
+	connect_neurons(neural_network, 1, 3, random_float() * 8. / 2.);
+	connect_neurons(neural_network, 1, 4, random_float() * 8. / 2.);
 	
 	// Connect neuron 2 to other neurons
-	connect_neurons(neural_network, 2, 5, random_float() * 8 / 3);
-	connect_neurons(neural_network, 2, 6, random_float() * 8 / 3);
+	connect_neurons(neural_network, 2, 5, random_float() * 8. / 3.);
+	connect_neurons(neural_network, 2, 6, random_float() * 8. / 3.);
 	
 	// Connect neuron 3 to other neurons
-	connect_neurons(neural_network, 3, 5, random_float() * 8 / 3);
-	connect_neurons(neural_network, 3, 6, random_float() * 8 / 3);
+	connect_neurons(neural_network, 3, 5, random_float() * 8. / 3.);
+	connect_neurons(neural_network, 3, 6, random_float() * 8. / 3.);
 	
 	// Connect neuron 4 to other neurons
-	connect_neurons(neural_network, 4, 5, random_float() * 8 / 3);
-	connect_neurons(neural_network, 4, 6, random_float() * 8 / 3);
+	connect_neurons(neural_network, 4, 5, random_float() * 8. / 3.);
+	connect_neurons(neural_network, 4, 6, random_float() * 8. / 3.);
 	
 	// Set each neurons offset
 	set_offset(neural_network, 2, 4);

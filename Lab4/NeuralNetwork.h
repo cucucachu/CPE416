@@ -11,6 +11,7 @@ typedef struct NeuralNetwork {
 	
 	float alpha; // Learning rate
 	float *desired_outputs;
+	float *saved_outputs;
 	
 	uint8_t num_input_neurons;
 	uint8_t num_output_neurons;
@@ -35,6 +36,9 @@ void get_outputs(NeuralNetwork *this, float *outputs);
 void teach_network(NeuralNetwork *this, float *outputs);
 void set_desired_output(NeuralNetwork *this, float *outputs);
 void calculate_gradients(NeuralNetwork *this, float *gradients);
+
+void save_outputs(NeuralNetwork *this);
+float get_saved_output(NeuralNetwork *this, int id);
 void backwards_prop(NeuralNetwork *this);
 
 #endif

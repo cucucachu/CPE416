@@ -2,7 +2,10 @@
 #include <stdio.h>
 #include <math.h>
 
+#include <util/delay.h>
 #include "Neuron.h"
+#include "NeuralNetwork.h"
+#include "globals.h"
 
 /*
 typedef struct Neuron {
@@ -63,29 +66,6 @@ void set_static_input(Neuron *this, float input) {
 	this->input = input;
 }
 
-/*
-void set_neuron_inputs(Neuron *this, Neuron **input_neurons, uint8_t number){
-	int i;
-	
-	this->number_of_inputs = number;
-	this->input_neurons = calloc(number, sizeof(Neuron *));
-	
-	for (i = 0; i < number; i++)
-		this->input_neurons[i] = input_neurons[i];
-}
-
-void set_neuron_outputs(Neuron *this, Neuron **output_neurons, uint8_t number) {
-	int i;
-	
-	this->number_of_outputs = number;
-	this->output_neurons = calloc(number, sizeof(Neuron *));
-	
-	for (i = 0; i < number; i++)
-		this->output_neurons[i] = output_neurons[i];
-}
-*/
-
-
 void set_neuron_input(Neuron *this, Neuron *input_neuron, float weight) {
 	
 	if (this->weights == NULL)
@@ -118,8 +98,10 @@ void set_neuron_offset(Neuron *this, float offset) {
 	this->offset = offset;
 }
 
-uint8_t equals(Neuron *this, Neuron *other) {
-	return this->id == other->id;
+uint8_t neuron_equals(Neuron *this, Neuron *other) {
+	if (this->id == other->id)
+		return 1;
+	return 0;
 }
 
 float get_weight_for_input_neuron(Neuron *this, Neuron *other) {
@@ -129,12 +111,14 @@ float get_weight_for_input_neuron(Neuron *this, Neuron *other) {
 	input_neuron_index = -1;
 	
 	for (i = 0; i < this->number_of_inputs; i++)
-		if (equals(this->input_neurons[i], other))
+		if (neuron_equals(this->input_neurons[i], other))
 			input_neuron_index = i;
 	
-	if (input_neuron_index == -1)
-		printf("Error in get_weight_for_input_neuron this %d other %d\n", this->id, other->id);
-		
+	if (input_neuron_index == -1) {
+		print_string("error");//printf("Error in get_weight_for_input_neuron this %d other %d\n", this->id, other->id);
+		while(1);
+	}
+	
 	return this->weights[i];
 }
 
