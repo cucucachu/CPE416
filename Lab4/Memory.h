@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define MEMORY_SIZE 1000
+#define MEMORY_SIZE 800
 
 typedef struct Input {
 	uint8_t left;

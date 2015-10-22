@@ -67,7 +67,7 @@ void setup() {
 	init();
 	init_lcd();
 	lf_init();
-	create_lab4_neural_network();
+	//create_lab4_neural_network();
 	
 	state = &proportional;
 	
@@ -140,9 +140,12 @@ void capture() {
 	motor(LEFT, 0);
 	motor(RIGHT, 0);
 	
-	clear_screen();
-	lcd_cursor(0, 0);
-	print_num(memory_index);
+	if (memory == 0) {
+		clear_screen();
+		lcd_cursor(0, 0);
+		print_string("MemError");
+		while(1);
+	}
 	
 	if (memory_index < MEMORY_SIZE) {
 	
@@ -151,26 +154,22 @@ void capture() {
 		
 		if (capture_count == 0) {
 			clear_screen();
-			lcd_cursor(0, 0);/*
-			//print_num(memory);
+			lcd_cursor(0, 0);
 			print_string("Data");
-			lcd_cursor(4, 0);
+			lcd_cursor(5, 0);
 			print_num(memory_index);
 			lcd_cursor(0, 1);
 			print_num(input.left);
 			lcd_cursor(4, 1);
-			print_num(input.right);*/
+			print_num(input.right);
 		}
 	
-		new_memory = memory + memory_index;
-		new_memory->input.left = input.left;
-		new_memory->input.right = input.right;	
-	
+		memory[memory_index].input = input;
 		memory_index++;
-		//capture_count = capture_count < 100 ? capture_count++ : 0;
+		capture_count = capture_count < 10 ? capture_count++ : 0;
 	}
 	
-	_delay_ms(300);
+	_delay_ms(30);
 }
 
 void training() {
