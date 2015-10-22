@@ -1,3 +1,9 @@
+/* Cody Jones and Gabriel Hernandez
+ * Neural Network
+ * Description: 
+ * Data structures and functions for the neural network. 
+ **/
+
 #ifndef NEURALNETWORK
 #define NEURALNETWORK
 

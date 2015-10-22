@@ -1,4 +1,11 @@
-#ifndef MEMORY
+/* Cody Jones and Gabriel Hernandez
+ * Memory
+ * Description: 
+ * Holds input output pairs which coorespond to results from the
+ *  line following algorithm. Neural Network can learn from this.
+ **/
+ 
+ #ifndef MEMORY
 #define MEMORY
 
 #include <stdint.h>

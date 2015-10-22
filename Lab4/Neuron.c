@@ -1,3 +1,10 @@
+/* Cody Jones and Gabriel Hernandez
+ * Neuron
+ * Description: 
+ * Struct for a neuron and functions to set parameters and
+ *  get neuron output.
+ **/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
