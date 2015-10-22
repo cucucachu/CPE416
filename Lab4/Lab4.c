@@ -14,10 +14,12 @@
 #define NUM_OUTPUT_NEURONS 2
 
 #define LEARNING_RATE .02
-#define LEARNING_ITERATIONS 100000
+#define LEARNING_ITERATIONS 400
 #define SEED 111
 
 void setup();
+
+void switch_state();
 
 void move();
 void study();
@@ -27,6 +29,8 @@ void proportional();
 void capture();
 void training();
 void neural();
+
+int get_training_iterations();
 
 MotorCommand compute_neural_network(uint8_t left, uint8_t right);
 void destroy();
@@ -41,6 +45,8 @@ Memory memory;
 int memory_index;
 int learning_index;
 void (*state)(void);
+int capture_count;
+int number_of_iterations;
 
 int main() {
 	//MotorCommand motor_command;
@@ -49,10 +55,7 @@ int main() {
 	
 	while (1) {
 		if (get_btn() == 1)
-			if (state == &proportional || state == &training)
-				state = &capture;
-			else if (state == &capture)
-				state = &training;
+			switch_state();
 		
 		state();
 	}
@@ -71,16 +74,48 @@ void setup() {
 	memory = calloc(MEMORY_SIZE, sizeof(IO_Pair));
 	memory_index = 0;
 	learning_index = 0;
+	capture_count = 0;
+	number_of_iterations = 0;
 }
 
+void switch_state() {
 
-void move() {
-	Memory current;
+	if (state == &proportional)
+		state = &capture;
+	else if (state == &capture)
+		state = &training;
+	else if (state == &training)
+		state = &neural;
+	else if (state == &neural)
+		state = &training;
+
+	_delay_ms(200);
+}
+
+int get_training_iterations() {
+	int num_iterations;
+	int tilt;
 	
-	if (memory_index % MEMORY_SIZE != 0) {
-		current = memory + ((memory_index - 1) % MEMORY_SIZE);
-		motors(current->motor_command);
+	num_iterations = LEARNING_ITERATIONS;
+	
+
+	while (!get_btn()) {
+		clear_screen();
+		print_string("How Many");
+		
+		tilt = get_accel_y();
+		
+		if (tilt > 128)
+			tilt = -(256 - tilt);
+		
+		num_iterations -= tilt;
+		
+		lcd_cursor(2, 1);	
+		print_num(num_iterations);
+		_delay_ms(500);
 	}
+	
+	return num_iterations;
 }
 
 void proportional() {
@@ -102,26 +137,34 @@ void proportional() {
 void capture() {
 	Input input;
 	Memory new_memory;
+	motor(LEFT, 0);
+	motor(RIGHT, 0);
 	
 	if (memory_index < MEMORY_SIZE) {
 	
 		input.left = read_ir_sensor(LEFT);
 		input.right = read_ir_sensor(RIGHT);
+		
+		if (capture_count == 0) {
+			clear_screen();
+			lcd_cursor(0, 0);
+			print_string("Data");
+			lcd_cursor(4, 0);
+			print_num(memory_index);
+			lcd_cursor(0, 1);
+			print_num(input.left);
+			lcd_cursor(4, 1);
+			print_num(input.right);
+		}
 	
-		clear_screen();
-		print_string("Data");
-		lcd_cursor(5, 0);
-		print_num(memory_index);
-		lcd_cursor(0, 1);
-		print_num(input.left);
-		lcd_cursor(4, 1);
-		print_num(input.right);
-	
-		new_memory = memory + (memory_index % MEMORY_SIZE);
+		new_memory = &(memory[memory_index]);//memory + (memory_index % MEMORY_SIZE);
 		new_memory->input = input;	
 	
 		memory_index++;
+		//capture_count = capture_count < 100 ? capture_count++ : 0;
 	}
+	
+	_delay_ms(300);
 }
 
 void training() {
@@ -132,9 +175,16 @@ void training() {
 	int i;
 	
 	clear_screen();
+	
+	_delay_ms(200);
+	
+	if (number_of_iterations == 0)
+		number_of_iterations = get_training_iterations();
+	
+	
 	print_string("Training");
 	
-	for (i = 0; i < MEMORY_SIZE; i++)  {
+	for (i = 0; i < number_of_iterations; i++)  {
 		current = memory + i;
 		
 		input[0] = (float)current->input.left / 100.0;
@@ -147,20 +197,30 @@ void training() {
 		desired_values[1] = (float)(motor_command.right) / 100.0;
 
 		teach_network(neural_network, desired_values);
+		clear_screen();
+		lcd_cursor(2, 1);
+		print_num(i);
 	}
+	
+	
+	clear_screen();
+	print_string("Finished");
+	
+	_delay_ms(700);
+	state = &neural;
 }
 
 void neural() {
-	float input[NUM_INPUT_NEURONS];
 	MotorCommand motor_command;
+	Input input;
 	
 	clear_screen();
 	print_string("Neural");
 	
-	input[0] = (float)read_ir_sensor(LEFT) / 100.0;
-	input[0] = (float)read_ir_sensor(RIGHT) / 100.0;
+	input.left = (float)read_ir_sensor(LEFT) / 100.0;
+	input.right = (float)read_ir_sensor(RIGHT) / 100.0;
 	
-	motor_command = 
+	motor_command = compute_neural_network(input.left, input.right);
 	motors(motor_command);
 }
 
