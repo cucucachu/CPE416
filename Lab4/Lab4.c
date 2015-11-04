@@ -50,7 +50,7 @@ int main() {
 	setup();
 	wait();
 	
-	learn_by_doing();
+	//learn_by_doing();
 	
 	while (1) {
 		if (get_btn() == 1)

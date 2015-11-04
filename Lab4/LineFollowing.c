@@ -1,7 +1,7 @@
 /* Cody Jones and Gabriel Hernandez
- * Lab 3 
+ * Lab 4 
  * Description: 
- * Line following robot. Press button twice to start.
+ * Encapsulates line following code from lab3.
  **/
 
 #include "LineFollowing.h"
