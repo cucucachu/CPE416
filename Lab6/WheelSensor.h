@@ -13,7 +13,7 @@
 volatile uint16_t left_count;
 volatile uint16_t right_count;
 
-void ir_init();
+void ws_init();
 
 
 void init_encoder();
