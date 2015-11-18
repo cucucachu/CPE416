@@ -10,8 +10,8 @@ void move_forward(float rotations) {
    left_end = rotations * FULL_CIRCLE;
    right_end = rotations * FULL_CIRCLE;
    
-   motor(LEFT_MOTOR, FULL_SPEED);
-   motor(RIGHT_MOTOR, FULL_SPEED);
+   motor(LEFT_MOTOR, FULL_SPEED_WHEEL);
+   motor(RIGHT_MOTOR, FULL_SPEED_WHEEL);
    
    while(left_count < left_end || right_count < right_end);
    
@@ -30,8 +30,8 @@ void turn_left() {
    left_end = NINETY_DEGREES;
    right_end = NINETY_DEGREES;
    
-   motor(LEFT_MOTOR, -FULL_SPEED);
-   motor(RIGHT_MOTOR, FULL_SPEED);
+   motor(LEFT_MOTOR, -FULL_SPEED_WHEEL);
+   motor(RIGHT_MOTOR, FULL_SPEED_WHEEL);
    
    while(left_count < left_end || right_count < right_end);
    
@@ -51,8 +51,8 @@ void turn_right() {
    left_end = NINETY_DEGREES;
    right_end = NINETY_DEGREES;
    
-   motor(LEFT_MOTOR, FULL_SPEED);
-   motor(RIGHT_MOTOR, -FULL_SPEED);
+   motor(LEFT_MOTOR, FULL_SPEED_WHEEL);
+   motor(RIGHT_MOTOR, -FULL_SPEED_WHEEL);
    
    while(left_count < left_end || right_count < right_end);
    
@@ -72,8 +72,8 @@ void turn_quarter_left() {
    left_end = (float)NINETY_DEGREES / 2.;
    right_end = (float)NINETY_DEGREES / 2.;
    
-   motor(LEFT_MOTOR, -FULL_SPEED);
-   motor(RIGHT_MOTOR, FULL_SPEED);
+   motor(LEFT_MOTOR, -FULL_SPEED_WHEEL);
+   motor(RIGHT_MOTOR, FULL_SPEED_WHEEL);
    
    while(left_count < left_end || right_count < right_end);
    
@@ -93,8 +93,8 @@ void turn_quarter_right() {
    left_end = (float)NINETY_DEGREES / 2.;
    right_end = (float)NINETY_DEGREES / 2.;
    
-   motor(LEFT_MOTOR, FULL_SPEED);
-   motor(RIGHT_MOTOR, -FULL_SPEED);
+   motor(LEFT_MOTOR, FULL_SPEED_WHEEL);
+   motor(RIGHT_MOTOR, -FULL_SPEED_WHEEL);
    
    while(left_count < left_end || right_count < right_end);
    
