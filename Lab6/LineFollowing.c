@@ -55,7 +55,6 @@ MotorCommand compute_proportional(uint8_t left, uint8_t right) {
 	
 	previous = present;
 	
-	_delay_ms(3);
 	return motor_command;
 }
 

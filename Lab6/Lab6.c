@@ -1,16 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "Motors.h"
+#include "IRSensors.h"
+#include "LineFollowing.h"
+#include "MonteCarlo.h"
 #include "globals.h"
-#include "BlockSensor.h"
 
 void wait();
-void init();
 
 void all_init() {
 	init();
+	monte_carlo_init();
 	ir_init();
 	init_lcd();
-   ws_init();
 	motor_init();
 	wait();
 	
@@ -19,8 +21,9 @@ void all_init() {
 int main() {
 	all_init();	
 	while(1) {
-      print_num(read_block_sensor);
-      _delay_ms(100);
+		_delay_ms(400);
+		clear_screen();
+		print_num((int)(guassian_sample(50, 25)));
 	}
 }
 
