@@ -12,5 +12,10 @@ Map create_map(int num_blocks, float block_positions[]) {
 	
 	map.num_blocks = num_blocks;
 	
+	map.vader = vader;
 	return map;
+}
+
+float vader_position(Map map) {
+	return map.blocks[map.vader].position;
 }

@@ -17,7 +17,10 @@ typedef struct Particle {
 typedef struct Map {
 	Block *blocks;
 	int num_blocks;	
+	int vader;
 } Map;
 
-Map create_map(int num_blocks, float block_positions[]);
+Map create_map(int num_blocks, float block_positions[], int vader);
+
+float vader_position(Map map);
 #endif
