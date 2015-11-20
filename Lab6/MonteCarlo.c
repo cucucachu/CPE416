@@ -36,8 +36,8 @@ float probability(Map map, Particle particle, float range) {
 	
 	for (i = 0; i < map.num_blocks; i++) {
 		if (map.blocks[i].position == 0) {
-			if (particle.position > 360 - (.5 * BLOCK_WIDTH) && particle.position < 360
-				|| particle.position < (.5 * BLOCK_WIDTH) && particle.position > 0) {
+			if ((particle.position >= 360 - (.5 * BLOCK_WIDTH) && particle.position < 360)
+				|| (particle.position <= (.5 * BLOCK_WIDTH) && particle.position > 0)) {
 					near_block = 1;
 					break;
 				}
@@ -51,9 +51,9 @@ float probability(Map map, Particle particle, float range) {
 	
 	if (range < TRAP_A || range > TRAP_D) 
 		probability = LOW_PROBABILITY;
-	else if (range > TRAP_A && range < TRAP_B) 
+	else if (range >= TRAP_A && range < TRAP_B) 
 		probability = max_probability * ((range - TRAP_A) / (TRAP_B - TRAP_A));
-	else if (range > TRAP_C && range < TRAP_D) 
+	else if (range >= TRAP_C && range < TRAP_D) 
 		probability = max_probability * ((TRAP_D - range) / (TRAP_D - TRAP_C));
 	else 
 		probability = max_probability;

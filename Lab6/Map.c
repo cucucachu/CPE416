@@ -1,6 +1,6 @@
 #include "Map.h"
 
-Map create_map(int num_blocks, float block_positions[]) {
+Map create_map(int num_blocks, float block_positions[], int vader) {
 	int i;
 	Map map;
 	

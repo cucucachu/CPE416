@@ -9,10 +9,10 @@
 
 #define SEED 1
 
-#define TRAP_A 10
-#define TRAP_B 13
-#define TRAP_C 17
-#define TRAP_D 20
+#define TRAP_A 9.
+#define TRAP_B 11.
+#define TRAP_C 18.
+#define TRAP_D 20.
 
 #define LOW_PROBABILITY .1
 #define HIGH_PROBABILITY .98

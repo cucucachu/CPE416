@@ -3,7 +3,7 @@ BOARD_LIB = $(SELF_DIR)/library
 SOURCE_LIB = $(wildcard $(BOARD_LIB)/*.c)
 CLOCK_RATE = 16000000L
 
-lab: lab6 program_linux
+lab: lab6 program_mac
 
 lab6: Lab6.c 	$(wildcard $(BOARD_LIB)/*.c)
 		avr-gcc -I$(BOARD_LIB) -DF_CPU=$(CLOCK_RATE) -Wall -mmcu=atmega645a -O2 -o main.elf $(wildcard $(SELF_DIR)/*.c ) $(wildcard $(BOARD_LIB)/*.c)

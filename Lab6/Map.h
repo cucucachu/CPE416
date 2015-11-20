@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #define MAX_POSITION 360
-#define BLOCK_WIDTH 15
+#define BLOCK_WIDTH 40
 
 typedef struct Block {
 	float position;
