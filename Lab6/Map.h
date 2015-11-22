@@ -3,8 +3,8 @@
 
 #include <stdlib.h>
 
-#define MAX_POSITION 360
-#define BLOCK_WIDTH 40
+#define MAX_POSITION 360.
+#define BLOCK_WIDTH 25.
 
 typedef struct Block {
 	float position;

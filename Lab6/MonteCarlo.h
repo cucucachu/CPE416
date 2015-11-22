@@ -14,7 +14,9 @@
 #define TRAP_C 18.
 #define TRAP_D 20.
 
-#define LOW_PROBABILITY .1
+#define RANDOM_PARTICLES 0
+
+#define LOW_PROBABILITY .00
 #define HIGH_PROBABILITY .98
 
 void monte_carlo_init();

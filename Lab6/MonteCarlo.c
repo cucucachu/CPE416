@@ -16,8 +16,11 @@ void monte_carlo(Map map, Particle *particles, int num, float range) {
 		new_particles[i] = particles[roulette(probabilities, num)];
 	
 	
-	for (i = 0; i < num; i++) 
+	for (i = 0; i < num - RANDOM_PARTICLES; i++) 
 		particles[i] = new_particles[i];
+	
+	for (i = num - RANDOM_PARTICLES; i < num; i++)
+		particles[i].position = 360. * random_float();
 }
 
 float gaussian_sample(float mean, float standard_deviation) {
@@ -32,7 +35,7 @@ float probability(Map map, Particle particle, float range) {
 	float probability;
 	int near_block = 0;
 	int i;
-	float max_probability = 2 / (TRAP_D + TRAP_C - TRAP_B - TRAP_A);
+	float max_probability;
 	
 	for (i = 0; i < map.num_blocks; i++) {
 		if (map.blocks[i].position == 0) {
@@ -49,18 +52,28 @@ float probability(Map map, Particle particle, float range) {
 		}
 	}
 	
-	if (range < TRAP_A || range > TRAP_D) 
-		probability = LOW_PROBABILITY;
-	else if (range >= TRAP_A && range < TRAP_B) 
-		probability = max_probability * ((range - TRAP_A) / (TRAP_B - TRAP_A));
-	else if (range >= TRAP_C && range < TRAP_D) 
-		probability = max_probability * ((TRAP_D - range) / (TRAP_D - TRAP_C));
-	else 
-		probability = max_probability;
-	
-	if (near_block == 0)
-		probability = (max_probability + LOW_PROBABILITY) - probability;
-	
+	if (near_block == 1) {
+		max_probability = 2 / (TRAP_D + TRAP_C - TRAP_B - TRAP_A);
+		if (range < TRAP_A || range > TRAP_D) 
+			probability = LOW_PROBABILITY;
+		else if (range >= TRAP_A && range < TRAP_B) 
+			probability = max_probability * ((range - TRAP_A) / (TRAP_B - TRAP_A));
+		else if (range >= TRAP_C && range < TRAP_D) 
+			probability = max_probability * ((TRAP_D - range) / (TRAP_D - TRAP_C));
+		else 
+			probability = max_probability;
+	}
+	else {
+		max_probability = 1 / ( (32 - (TRAP_D - TRAP_A)) + (.5*(TRAP_B - TRAP_A)) + (.5 * (TRAP_D - TRAP_C )) );
+		if (range < TRAP_A || range > TRAP_D) 
+			probability = max_probability;
+		else if (range >= TRAP_A && range < TRAP_B) 
+			probability = max_probability * ((TRAP_B - range) / (TRAP_B - TRAP_A));
+		else if (range >= TRAP_C && range < TRAP_D) 
+			probability = max_probability * ((range - TRAP_C) / (TRAP_D - TRAP_C));
+		else 
+			probability = LOW_PROBABILITY;
+	}
 	return probability;
 }
 
@@ -90,24 +103,49 @@ int roulette(float probabilities[], int num) {
 }
 
 float mean_position(Particle particles[], int num) {
-	float sum = 0;
+	float mean_angle;
+	float radians;
 	int i;
+	float imaginary, real;
 	
-	for (i = 0; i < num; i++)
-		sum += particles[i].position;
+	imaginary = 0;
+	real = 0;
 	
-	return sum / (float)num;
+	for (i = 0; i < num; i++) {
+		radians = particles[i].position * (M_PI / 180.);
+		imaginary += sin(radians);
+		real += cos(radians);
+	}
+	
+	imaginary /= num;
+	real /= num;
+	
+	mean_angle = atan2(imaginary, real);
+	
+	return mean_angle * (180. / M_PI);
 }
 
 float standard_deviation(Particle particles[], int num) {
 	float mean;
 	int i;
 	float sum = 0;
+	float offset;
+	float adjusted_position;
 	
 	mean = mean_position(particles, num);
 	
-	for (i = 0; i < num; i++)
-		sum += (particles[i].position - mean) * (particles[i].position - mean);
+	offset = 180 - mean;
+	
+	for (i = 0; i < num; i++) {
+		adjusted_position = particles[i].position + offset;
+		
+		if (adjusted_position < 0)
+			adjusted_position += 360;
+		else if (adjusted_position > 360)
+			adjusted_position -= 360;
+			
+		sum += (adjusted_position - 180) * (adjusted_position - 180);
+	}
 	
 	sum /= (float)num;
 	

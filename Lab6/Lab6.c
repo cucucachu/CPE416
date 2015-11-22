@@ -7,18 +7,18 @@
 #include "globals.h"
 
 #define NUM_BLOCKS 2
-#define BLOCK_POS_1 0
-#define BLOCK_POS_2 90
+#define BLOCK_POS_1 90.
+#define BLOCK_POS_2 180.
 #define VADER 1
 
 #define ALL_THE_WAY 275.
-#define NUM_PARTICLES 100
+#define NUM_PARTICLES 200
 #define NINETY_DEGREES 29
 
-#define POSITION_PROBABILITY_THRESHOLD 20
-#define TRAVEL_DISTANCE 10.
+#define POSITION_PROBABILITY_THRESHOLD (BLOCK_WIDTH / 2.)
+#define TRAVEL_DISTANCE 5.
 #define TICKS_PER_DEGREE (ALL_THE_WAY / 360.)
-#define MOTION_NOISE 1
+#define MOTION_NOISE .2
 
 void wait();
 float find_location();
@@ -87,44 +87,57 @@ int main() {
 
 
 float find_location() {
-	while (standard_deviation(particles, NUM_PARTICLES) > POSITION_PROBABILITY_THRESHOLD) {
+	float position;
+	float std_dev = standard_deviation(particles, NUM_PARTICLES);
+	while (std_dev > POSITION_PROBABILITY_THRESHOLD) {
 		// move robot
 		move_robot();
-	
+		clear_screen();
+		print_num(std_dev);
 		// move particles
 		move_particles(particles);
 	
 		// monte carlo
 		monte_carlo(map, particles, NUM_PARTICLES, get_range());
-	
-		// check std_dev
-		_delay_ms(500);
+		std_dev = standard_deviation(particles, NUM_PARTICLES);
 	}
 	
+	position = mean_position(particles, NUM_PARTICLES);
+	
 	clear_screen();
-	print_string("Stopped");
-	return mean_position(particles, NUM_PARTICLES);
+	print_string("Found!");
+	lcd_cursor(5, 1);
+	print_num(std_dev);
+	_delay_ms(1000);
+	return position;
 }
 
 void return_of_the_jedi(float starting_position) {
 	int distance;
-	int start_count = left_count;
 	float vader = vader_position(map);
+	float position;
 	MotorCommand motor_command;
 	
-	clear_screen();
-	print_string("Hunt");
+	left_count = 0;
 	
 	if (starting_position <= vader)
 		distance = (vader - starting_position) * TICKS_PER_DEGREE;
 	else 
 		distance = (360 -(starting_position - vader)) * TICKS_PER_DEGREE;
 	
-	while (left_count < start_count + distance) {
+	while (left_count < distance) {
 		motor_command = compute_proportional(read_ir_sensor(LEFT), read_ir_sensor(RIGHT));
-	
 		motors(motor_command);
 		_delay_ms(DELAY);
+	
+		clear_screen();
+		print_string("Hunt");
+		lcd_cursor(0, 0);
+		position = (float)left_count / (float)TICKS_PER_DEGREE;
+		position = position > 360 ? position - 360 : position;
+		print_num((int)position);
+		lcd_cursor(4, 0);
+		print_num(vader);
 	}
 	
 	motor_command.left = 0;
@@ -142,7 +155,8 @@ void return_of_the_jedi(float starting_position) {
 	motor_command.right = FULL_SPEED;
 	motors(motor_command);
 	
-	while (left_count < 300);
+	left_count = 0;
+	while (left_count < 75);
 	
 	motor_command.left = 0;
 	motor_command.right = 0;
@@ -184,7 +198,7 @@ void map_init() {
 	int i;
 	
 	block_positions[0] = BLOCK_POS_1;
-	block_positions[0] = BLOCK_POS_2;
+	block_positions[1] = BLOCK_POS_2;
 	
 	map = create_map(NUM_BLOCKS, block_positions, VADER);
 	
