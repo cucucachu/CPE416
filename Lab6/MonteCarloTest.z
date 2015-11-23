@@ -9,11 +9,11 @@
 #define VADER 1
 
 #define ALL_THE_WAY 275.
-#define NUM_PARTICLES 200
+#define NUM_PARTICLES 175
 #define NINETY_DEGREES 29
 
 #define POSITION_PROBABILITY_THRESHOLD (BLOCK_WIDTH / 2.)
-#define TRAVEL_DISTANCE 5
+#define TRAVEL_DISTANCE 5.
 #define TICKS_PER_DEGREE (ALL_THE_WAY / 360.)
 #define MOTION_NOISE .2
 
@@ -50,7 +50,7 @@ void move_particles(Particle particles[]) {
 
 float find_location(Map map, Particle particles[]) {
 	float readings[72] = {
-		30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 15, 15, 15, 
+		32, 32, 32, 32, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 15, 15, 15, 
 		15, 15, 30,	30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 15, 15, 15, 
 		15, 15, 30, 30, 30, 30,	30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 
 		30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30
@@ -60,7 +60,7 @@ float find_location(Map map, Particle particles[]) {
 	
 	robot_position = 0;
 	
-	while (standard_deviation(particles, NUM_PARTICLES) > POSITION_PROBABILITY_THRESHOLD) {
+	while (variance(particles, NUM_PARTICLES) > POSITION_PROBABILITY_THRESHOLD * POSITION_PROBABILITY_THRESHOLD) {
 		
 		move_particles(particles);
 		robot_position += TRAVEL_DISTANCE;

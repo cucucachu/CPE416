@@ -120,12 +120,19 @@ float mean_position(Particle particles[], int num) {
 	imaginary /= num;
 	real /= num;
 	
-	mean_angle = atan2(imaginary, real);
+	mean_angle = atan2(imaginary, real) * (180. / M_PI);
 	
-	return mean_angle * (180. / M_PI);
+	if (mean_angle < 0)
+		mean_angle += 360;
+	
+	return mean_angle;
 }
 
 float standard_deviation(Particle particles[], int num) {
+	return sqrt(variance(particles, num));
+}
+
+float variance(Particle particles[], int num) {
 	float mean;
 	int i;
 	float sum = 0;
@@ -141,7 +148,7 @@ float standard_deviation(Particle particles[], int num) {
 		
 		if (adjusted_position < 0)
 			adjusted_position += 360;
-		else if (adjusted_position > 360)
+		else if (adjusted_position >= 360)
 			adjusted_position -= 360;
 			
 		sum += (adjusted_position - 180) * (adjusted_position - 180);
@@ -149,7 +156,7 @@ float standard_deviation(Particle particles[], int num) {
 	
 	sum /= (float)num;
 	
-	return sqrt(sum);
+	return sum;
 }
 
 float random_float() {

@@ -10,6 +10,9 @@ lab6: Lab6.c 	$(wildcard $(BOARD_LIB)/*.c)
 		avr-objcopy -O ihex main.elf main.hex
 		avr-size main.elf
 
+MonteCarloTest: MonteCarloTest.c MonteCarlo.c Map.c
+	gcc MonteCarloTest.c MonteCarlo.c Map.c -lm -o mct
+
 test: test.c $(wildcard $(BOARD_LIB)/*.c)
 	avr-gcc -I$(BOARD_LIB) -DF_CPU=$(CLOCK_RATE) -Wall -mmcu=atmega645a -O2 -o main.elf test.c $(wildcard $(BOARD_LIB)/*.c)
 	avr-objcopy -O ihex main.elf main.hex

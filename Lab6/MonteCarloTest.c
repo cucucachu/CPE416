@@ -3,17 +3,18 @@
 #include "MonteCarlo.h"
 #include "Map.h"
 
-#define NUM_BLOCKS 2
+#define NUM_BLOCKS 3
 #define BLOCK_POS_1 90.
 #define BLOCK_POS_2 180.
+#define BLOCK_POS_3 270.
 #define VADER 1
 
 #define ALL_THE_WAY 275.
-#define NUM_PARTICLES 200
+#define NUM_PARTICLES 185
 #define NINETY_DEGREES 29
 
 #define POSITION_PROBABILITY_THRESHOLD (BLOCK_WIDTH / 2.)
-#define TRAVEL_DISTANCE 5
+#define TRAVEL_DISTANCE 5.
 #define TICKS_PER_DEGREE (ALL_THE_WAY / 360.)
 #define MOTION_NOISE .2
 
@@ -50,17 +51,17 @@ void move_particles(Particle particles[]) {
 
 float find_location(Map map, Particle particles[]) {
 	float readings[72] = {
-		30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 15, 15, 15, 
+		32, 32, 32, 32, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 15, 15, 15, 
 		15, 15, 30,	30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 15, 15, 15, 
-		15, 15, 30, 30, 30, 30,	30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 
-		30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30
+		15, 15, 30, 30, 30, 30,	30, 30, 30, 30, 30, 30, 30, 30, 30, 15, 15, 15, 
+		15, 15, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30
 		};
-	int i = 0, ii;
+	int i = 54, ii;
 	int *histogram = calloc(360, sizeof(int));
 	
-	robot_position = 0;
+	robot_position = 270;
 	
-	while (standard_deviation(particles, NUM_PARTICLES) > POSITION_PROBABILITY_THRESHOLD) {
+	while (variance(particles, NUM_PARTICLES) > POSITION_PROBABILITY_THRESHOLD * POSITION_PROBABILITY_THRESHOLD) {
 		
 		move_particles(particles);
 		robot_position += TRAVEL_DISTANCE;
@@ -68,7 +69,7 @@ float find_location(Map map, Particle particles[]) {
 		if (robot_position > 360)
 			robot_position -= 360;
 	
-		monte_carlo(map, particles, NUM_PARTICLES, readings[i % 24]);
+		monte_carlo(map, particles, NUM_PARTICLES, readings[i % 72]);
 		
 		qsort(particles, NUM_PARTICLES, sizeof(Particle), compare_particles);
 		if (i == 1 || i == 10) {
@@ -84,6 +85,8 @@ float find_location(Map map, Particle particles[]) {
 		}
 		printf("at time %d std deviation: %.2f\n", i, standard_deviation(particles, NUM_PARTICLES));
 		i++;
+		if (i > 71)
+			i = 0;
 	}
 	
 	printf("Location %.2f in %d turns\n", mean_position(particles, NUM_PARTICLES), i);
@@ -101,8 +104,9 @@ int main() {
 	
 	block_positions[0] = BLOCK_POS_1;
 	block_positions[1] = BLOCK_POS_2;
+	block_positions[2] = BLOCK_POS_3;
 	
-	map = create_map(2, block_positions, 0);
+	map = create_map(NUM_BLOCKS, block_positions, 0);
 	
 	for (i = 0; i < NUM_PARTICLES; i++) {
 		particles[i].position = (random_float()) * 360;

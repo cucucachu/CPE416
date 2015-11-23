@@ -33,6 +33,8 @@ float mean_position(Particle particles[], int num);
 
 float standard_deviation(Particle particles[], int num);
 
+float variance(Particle particles[], int num);
+
 float random_float();
 
 #endif

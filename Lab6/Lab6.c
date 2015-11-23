@@ -12,7 +12,7 @@
 #define VADER 1
 
 #define ALL_THE_WAY 275.
-#define NUM_PARTICLES 200
+#define NUM_PARTICLES 185
 #define NINETY_DEGREES 29
 
 #define POSITION_PROBABILITY_THRESHOLD (BLOCK_WIDTH / 2.)
@@ -88,26 +88,24 @@ int main() {
 
 float find_location() {
 	float position;
-	float std_dev = standard_deviation(particles, NUM_PARTICLES);
-	while (std_dev > POSITION_PROBABILITY_THRESHOLD) {
+	float std_dev = variance(particles, NUM_PARTICLES);
+	while (std_dev > POSITION_PROBABILITY_THRESHOLD * POSITION_PROBABILITY_THRESHOLD) {
 		// move robot
 		move_robot();
-		clear_screen();
-		print_num(std_dev);
 		// move particles
 		move_particles(particles);
 	
 		// monte carlo
+		clear_screen();
+		print_num((int)get_range());
 		monte_carlo(map, particles, NUM_PARTICLES, get_range());
-		std_dev = standard_deviation(particles, NUM_PARTICLES);
+		std_dev = variance(particles, NUM_PARTICLES);
 	}
 	
 	position = mean_position(particles, NUM_PARTICLES);
 	
 	clear_screen();
 	print_string("Found!");
-	lcd_cursor(5, 1);
-	print_num(std_dev);
 	_delay_ms(1000);
 	return position;
 }
@@ -119,26 +117,26 @@ void return_of_the_jedi(float starting_position) {
 	MotorCommand motor_command;
 	
 	left_count = 0;
+	position = ((float)left_count / (float)TICKS_PER_DEGREE) + starting_position;
+	position = position > 360 ? position - 360 : position;
 	
-	if (starting_position <= vader)
-		distance = (vader - starting_position) * TICKS_PER_DEGREE;
-	else 
-		distance = (360 -(starting_position - vader)) * TICKS_PER_DEGREE;
-	
-	while (left_count < distance) {
+	while ((int)(position) != (int)vader) {
 		motor_command = compute_proportional(read_ir_sensor(LEFT), read_ir_sensor(RIGHT));
 		motors(motor_command);
 		_delay_ms(DELAY);
 	
 		clear_screen();
 		print_string("Hunt");
-		lcd_cursor(0, 0);
-		position = (float)left_count / (float)TICKS_PER_DEGREE;
+		lcd_cursor(0, 1);
+		position = ((float)left_count / (float)TICKS_PER_DEGREE) + starting_position;
 		position = position > 360 ? position - 360 : position;
 		print_num((int)position);
-		lcd_cursor(4, 0);
+		lcd_cursor(4, 1);
 		print_num(vader);
 	}
+	
+	clear_screen();
+	print_string("Attack");
 	
 	motor_command.left = 0;
 	motor_command.right = 0;
@@ -215,5 +213,5 @@ void wait() {
 	clear_screen();
 	lcd_cursor(3, 0);
 	print_string("Go");
-	_delay_ms(200);
+	_delay_ms(400);
 }
