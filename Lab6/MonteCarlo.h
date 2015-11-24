@@ -7,16 +7,16 @@
 #include "Map.h"
 
 
-#define SEED 1
+#define SEED 2
 
-#define TRAP_A 9.
-#define TRAP_B 11.
+#define TRAP_A 2
+#define TRAP_B 4
 #define TRAP_C 18.
-#define TRAP_D 20.
+#define TRAP_D 21.
 
 #define RANDOM_PARTICLES 0
 
-#define LOW_PROBABILITY .00
+#define LOW_PROBABILITY .005
 #define HIGH_PROBABILITY .98
 
 void monte_carlo_init();

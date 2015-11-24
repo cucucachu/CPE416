@@ -1,5 +1,5 @@
 /* Cody Jones and Gabriel Hernandez
- * Lab 4 
+ * Lab 6
  * Description: 
  * Encapsulates line following code from lab3.
  **/
