@@ -21,7 +21,8 @@ void motor(uint8_t num, int8_t speed);
 
 void motor_forward();
 void motor_backward();
-void motor_spin();
+void motor_spin_right();
+void motor_spin_left();
 void motor_stop();
 
 #endif

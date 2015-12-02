@@ -31,7 +31,12 @@ void motor_backward() {
 	motor(RIGHT_MOTOR, -FULL_SPEED);
 }
 
-void motor_spin() {
+void motor_spin_left() {
+	motor(LEFT_MOTOR, FULL_SPEED);
+	motor(RIGHT_MOTOR, -FULL_SPEED);
+}
+
+void motor_spin_right() {
 	motor(LEFT_MOTOR, FULL_SPEED);
 	motor(RIGHT_MOTOR, -FULL_SPEED);
 }
