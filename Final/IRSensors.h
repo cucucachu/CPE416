@@ -8,7 +8,6 @@
 #include <stdint.h>
 #include "globals.h"
 
-#define FULL_CIRCLE 50
 #define SENSOR_CALIBRATION .39
 #define BLACK 77
 #define WHITE 7

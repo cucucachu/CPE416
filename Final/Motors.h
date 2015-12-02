@@ -8,7 +8,7 @@
 #define RIGHT_SERVO     0 
 #define LEFT_SERVO      1 
 #define MAXSPEEDRANGE   27.0
-#define FULL_SPEED 50
+#define FULL_SPEED 90
 
 typedef struct MotorCommand {
 	uint8_t left;
@@ -19,10 +19,5 @@ void motor_init();
 void motors(MotorCommand motor_command);
 void motor(uint8_t num, int8_t speed);
 
-void motor_forward();
-void motor_backward();
-void motor_spin_right();
-void motor_spin_left();
-void motor_stop();
 
 #endif

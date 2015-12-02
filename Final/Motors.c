@@ -21,27 +21,4 @@ void motor(uint8_t num, int8_t speed) {
    set_servo(num, speed);
 }
 
-void motor_forward() {
-	motor(LEFT_MOTOR, FULL_SPEED);
-	motor(RIGHT_MOTOR, FULL_SPEED);
-}
 
-void motor_backward() {
-	motor(LEFT_MOTOR, -FULL_SPEED);
-	motor(RIGHT_MOTOR, -FULL_SPEED);
-}
-
-void motor_spin_left() {
-	motor(LEFT_MOTOR, FULL_SPEED);
-	motor(RIGHT_MOTOR, -FULL_SPEED);
-}
-
-void motor_spin_right() {
-	motor(LEFT_MOTOR, FULL_SPEED);
-	motor(RIGHT_MOTOR, -FULL_SPEED);
-}
-
-void motor_stop() {
-	motor(LEFT_MOTOR, 0);
-	motor(RIGHT_MOTOR, 0);
-}
