@@ -34,6 +34,18 @@ void find_target() {
 }
 
 void attack() {
+   int side = LEFT; 
+   //Currently just using 50 as random number. 
+   while(read_ir_sensor(LEFT) < BLACK || read_ir_sensor(RIGHT) < BLACK) {
+      motor_forward();
+   }
+
+   motor_stop();
+
+   if(read_ir_sensor(LEFT) >= BLACK)
+      side = LEFT;
+   else
+      side = RIGHT;
 
 }
 
