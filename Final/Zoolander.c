@@ -1,8 +1,18 @@
+/*
+ * Lab 7 / Final. 
+ * Cody Jones and Gabriel Hernandezd
+ * 
+ * Robot will spin around looking for cans. Once can is found it will move forward until
+ * it reaches the edge of the board, as marked by black tape. The robot then attempts to
+ * move back to the middle and start over.
+ */
+
+
 #include "globals.h"
 #include "Motors.h"
 #include "IRSensors.h"
 
-#define HALF_WAY_DISTANCE 125
+#define HALF_WAY_DISTANCE 115
 #define FULL_CIRCLE 100
 #define NINETY_DEGREES 29
 #define MAX_RANGE 25
@@ -76,23 +86,41 @@ void find_target() {
 		while (left_count < 90);
 		motor_stop();
 	}
-	else 
+	else {
+		motor_spin_right();
+		_delay_ms(20);
+		motor_stop();
+	
 		state = &attack;
+	}
 }
 
 void attack() {
+	int left, right;
 	clear_screen();
 	print_string("Attack");
    motor_forward();
 
-   while(read_ir_sensor(LEFT) < BLACK && read_ir_sensor(RIGHT) < BLACK);
-   motor_stop();
+   while(1) {
+   		left = read_ir_sensor(LEFT);
+   		right = read_ir_sensor(RIGHT);
+   		
+   		if (left >= BLACK && right < BLACK) {
+   			first_led_to_hit = LEFT;
+   			break;
+   		}
+   		else if (right >= BLACK && left < BLACK) {
+   			first_led_to_hit = RIGHT;
+   			break;
+   		}
+   		else if (left >= BLACK && right >= BLACK) {
+   			first_led_to_hit = 47;
+   			break;
+   		}
+   } 
 
-   if(read_ir_sensor(LEFT) >= BLACK)
-      first_led_to_hit = LEFT;
-   else
-      first_led_to_hit = RIGHT;
-      
+
+   motor_stop();
    state = &straighten_out;
 
 }
@@ -101,22 +129,17 @@ void straighten_out() {
 	clear_screen();
 	print_string("Fix");
 	
-	/*
-	motor_backward();
-	left_count = 0;
-	while (left_count < 1);
-	motor_stop();
-	*/
-	
-	if (first_led_to_hit == LEFT)
-		motor_spin_left();
-	else 
-		motor_spin_right();
-		
-	while (read_ir_sensor(LEFT) < BLACK || read_ir_sensor(RIGHT) < BLACK);
-	
-	
-	motor_stop();
+	if (first_led_to_hit != 47) {	
+		if (first_led_to_hit == LEFT)
+			motor_spin_left();
+		else if (first_led_to_hit == RIGHT)
+			motor_spin_right();
+
+		left_count = 0;	
+		while (left_count < 5);
+
+		motor_stop();
+	}
 	state = &go_to_center;
 	
 }
